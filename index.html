@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apresentador de PDF — apresente PDFs no telão com modo apresentador</title>
+<meta name="description" content="Apresente qualquer PDF em segundo monitor ou projetor, com slide atual, próximo slide, cronômetro, laser e visão geral. Funciona offline, sem conta, com passador de slides. Grátis na Microsoft Store.">
+<link rel="canonical" href="https://rafonsky.github.io/apresentador-de-pdf-landing/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Apresentador de PDF">
+<meta property="og:description" content="Seu PDF vira apresentação: modo apresentador, laser, cronômetro e visão geral dos slides. Grátis na Microsoft Store.">
+<meta property="og:url" content="https://rafonsky.github.io/apresentador-de-pdf-landing/">
+<meta property="og:image" content="https://rafonsky.github.io/apresentador-de-pdf-landing/img/1_modo_apresentador.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="img/logo.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Apresentador de PDF",
+ "operatingSystem":"Windows 10, Windows 11","applicationCategory":"BusinessApplication",
+ "description":"Apresente qualquer PDF em segundo monitor ou projetor com modo apresentador, laser, cronômetro e visão geral dos slides.",
+ "offers":{"@type":"Offer","price":"0","priceCurrency":"BRL"},
+ "author":{"@type":"Person","name":"Rafonsky"},
+ "downloadUrl":"https://apps.microsoft.com/detail/9P0W9S0SNNXN"}
+</script>
+<style>
+  /* Cores e medidas em um só lugar */
+  :root { --fundo:#ffffff; --painel:#f3f7f8; --texto:#14202b; --fraco:#51606b; --destaque:#0f766e;
+          --destaque2:#2dd4bf; --borda:#dbe5e8; --raio:16px; --brilho:rgba(45,212,191,.22);
+          --sombra:0 18px 50px rgba(15,60,70,.18); --tecla:#e6eef0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fundo:#0b0f14; --painel:#141a22; --texto:#e8eef6; --fraco:#9aa7b6; --destaque:#2dd4bf;
+            --destaque2:#2dd4bf; --borda:#263041; --brilho:rgba(45,212,191,.16);
+            --sombra:0 18px 50px rgba(0,0,0,.55); --tecla:#1b2330; }
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--fundo); color:var(--texto);
+         font:16px/1.65 "Segoe UI",system-ui,-apple-system,sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:var(--destaque); }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 20px; }
+
+  /* Cabeçalho */
+  header { position:sticky; top:0; z-index:10; backdrop-filter:blur(12px);
+           background:color-mix(in srgb, var(--fundo) 82%, transparent); border-bottom:1px solid var(--borda); }
+  header .wrap { display:flex; align-items:center; gap:14px; height:62px; }
+  header .marca { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--texto); font-weight:700; }
+  header .marca img { width:34px; height:34px; border-radius:8px; }
+  header nav { margin-left:auto; display:flex; gap:22px; }
+  header nav a { color:var(--fraco); text-decoration:none; font-size:.95rem; }
+  header nav a:hover { color:var(--texto); }
+  @media (max-width:720px) { header nav a:not(.cta-topo) { display:none; } }
+  .cta-topo { background:var(--destaque); color:#fff !important; padding:7px 16px; border-radius:999px; font-weight:600; }
+  @media (prefers-color-scheme: dark) { .cta-topo { color:#04201c !important; } }
+
+  /* Herói */
+  .hero { position:relative; overflow:hidden; padding:64px 0 36px; text-align:center; }
+  .hero::before { content:""; position:absolute; inset:-120px 0 auto 0; height:520px; z-index:-1;
+                  background:radial-gradient(60% 70% at 50% 0%, var(--brilho), transparent 70%); }
+  .etiqueta { display:inline-block; font-size:.85rem; font-weight:600; color:var(--destaque);
+              border:1px solid var(--borda); background:var(--painel); padding:5px 14px; border-radius:999px; margin-bottom:18px; }
+  .hero h1 { font-size:clamp(2.1rem,5.4vw,3.7rem); line-height:1.1; margin:0 0 18px; letter-spacing:-.02em; }
+  .hero h1 em { font-style:normal; background:linear-gradient(90deg,var(--destaque),var(--destaque2));
+                -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero p.lead { font-size:1.2rem; color:var(--fraco); max-width:700px; margin:0 auto 28px; }
+  .botoes { display:flex; gap:14px; justify-content:center; align-items:center; flex-wrap:wrap; }
+  .btn { display:inline-block; padding:13px 24px; border-radius:12px; font-weight:700; text-decoration:none;
+         background:var(--destaque); color:#fff; }
+  @media (prefers-color-scheme: dark) { .btn { color:#04201c; } }
+  .btn.sec { background:transparent; color:var(--texto); border:1px solid var(--borda); }
+  .btn.sec:hover { border-color:var(--destaque); }
+  .selo { display:inline-flex; align-items:center; }
+  .selo img { height:52px; width:auto; display:block; }
+  .selo .selo-claro { display:none; }
+  @media (prefers-color-scheme: dark) { .selo .selo-escuro { display:none; } .selo .selo-claro { display:block; } }
+  .fatos { display:flex; flex-wrap:wrap; gap:8px 22px; justify-content:center; margin:22px 0 0; padding:0; list-style:none;
+           color:var(--fraco); font-size:.95rem; }
+  .fatos li::before { content:"✓ "; color:var(--destaque); font-weight:700; }
+
+  /* Moldura de captura */
+  .shot { margin:44px auto 0; border-radius:var(--raio); border:1px solid var(--borda); overflow:hidden;
+          box-shadow:var(--sombra); max-width:1000px; background:var(--painel); }
+  .shot .barra { display:flex; gap:7px; padding:10px 14px; border-bottom:1px solid var(--borda); }
+  .shot .barra i { width:10px; height:10px; border-radius:50%; background:var(--borda); display:block; }
+  .shot img { display:block; width:100%; height:auto; }
+
+  /* Seções */
+  section { padding:72px 0; }
+  section.fundo { background:var(--painel); }
+  section h2 { font-size:clamp(1.6rem,3.4vw,2.2rem); margin:0 0 10px; text-align:center; letter-spacing:-.01em; }
+  section .sub { text-align:center; color:var(--fraco); margin:0 auto 40px; max-width:660px; }
+
+  .grade { display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:16px; }
+  .card { background:var(--painel); border:1px solid var(--borda); border-radius:var(--raio); padding:24px;
+          transition:transform .15s, border-color .15s; }
+  section.fundo .card { background:var(--fundo); }
+  .card:hover { transform:translateY(-3px); border-color:var(--destaque); }
+  .card .ico { width:42px; height:42px; border-radius:12px; display:grid; place-items:center; margin-bottom:14px;
+               background:var(--brilho); color:var(--destaque); }
+  .card .ico svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .card h3 { margin:0 0 6px; font-size:1.08rem; }
+  .card p { margin:0; color:var(--fraco); font-size:.97rem; }
+
+  /* Passos */
+  .passos { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:22px; align-items:start; }
+  .passo { background:var(--fundo); border:1px solid var(--borda); border-radius:var(--raio); overflow:hidden; }
+  .passo img { display:block; width:100%; height:auto; border-bottom:1px solid var(--borda); }
+  .passo .txt { padding:16px 20px 20px; }
+  .passo .n { display:inline-grid; place-items:center; width:28px; height:28px; border-radius:50%;
+              background:var(--destaque); color:#fff; font-weight:700; font-size:.9rem; margin-right:8px; }
+  @media (prefers-color-scheme: dark) { .passo .n { color:#04201c; } }
+  .passo h3 { display:flex; align-items:center; margin:0 0 6px; font-size:1.05rem; }
+  .passo p { margin:0; color:var(--fraco); font-size:.96rem; }
+  .passo.texto .txt { padding:22px 22px 24px; }
+
+  /* Teclas */
+  .teclas { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px 28px; max-width:900px; margin:0 auto; }
+  .tecla { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px dashed var(--borda); }
+  .tecla span:last-child { color:var(--fraco); }
+  kbd { font:600 .85rem/1 "Cascadia Mono",Consolas,monospace; background:var(--tecla); border:1px solid var(--borda);
+        border-bottom-width:2px; border-radius:7px; padding:5px 9px; color:var(--texto); white-space:nowrap; }
+  .teclas .k { min-width:150px; display:flex; gap:5px; flex-wrap:wrap; }
+
+  /* Para quem */
+  .quem { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+  .quem span { border:1px solid var(--borda); background:var(--painel); border-radius:999px; padding:9px 20px; font-weight:600; }
+
+  /* Planos */
+  .planos { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:18px; max-width:800px; margin:0 auto; }
+  .plano { background:var(--fundo); border:1px solid var(--borda); border-radius:var(--raio); padding:30px; position:relative; }
+  .plano.dest { border:2px solid var(--destaque); box-shadow:0 10px 36px var(--brilho); }
+  .plano .fita { position:absolute; top:-13px; right:22px; background:var(--destaque); color:#fff; font-size:.78rem;
+                 font-weight:700; padding:3px 12px; border-radius:999px; }
+  @media (prefers-color-scheme: dark) { .plano .fita { color:#04201c; } }
+  .plano h3 { margin:0; font-size:1.15rem; }
+  .plano .preco { font-size:2.4rem; font-weight:800; margin:6px 0 14px; letter-spacing:-.02em; }
+  .plano .preco small { font-size:1rem; font-weight:400; color:var(--fraco); }
+  .plano ul { list-style:none; padding:0; margin:0; color:var(--fraco); }
+  .plano li { padding:5px 0 5px 26px; position:relative; }
+  .plano li::before { content:"✓"; position:absolute; left:0; color:var(--destaque); font-weight:800; }
+  .plano .obs { margin:16px 0 0; font-size:.88rem; color:var(--fraco); }
+  .rodape-planos { text-align:center; color:var(--fraco); font-size:.92rem; margin:26px auto 0; max-width:640px; }
+
+  /* Idiomas e privacidade */
+  .duas-col { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; }
+  .langs { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .langs b { border:1px solid var(--borda); border-radius:8px; padding:3px 12px; font-size:.9rem; }
+
+  /* FAQ */
+  details { background:var(--painel); border:1px solid var(--borda); border-radius:12px; padding:16px 20px; margin-bottom:10px; }
+  section.fundo details { background:var(--fundo); }
+  summary { cursor:pointer; font-weight:600; }
+  details[open] summary { color:var(--destaque); }
+  details p { color:var(--fraco); margin:10px 0 0; }
+
+  /* Chamada final */
+  .final { text-align:center; padding:80px 0; position:relative; overflow:hidden; }
+  .final::before { content:""; position:absolute; inset:auto 0 -160px 0; height:420px; z-index:-1;
+                   background:radial-gradient(60% 70% at 50% 100%, var(--brilho), transparent 70%); }
+  .final h2 { margin-bottom:12px; }
+  .final p { color:var(--fraco); margin:0 auto 26px; max-width:560px; }
+
+  footer { border-top:1px solid var(--borda); padding:30px 0; color:var(--fraco); font-size:.93rem; text-align:center; }
+  footer a { color:var(--fraco); }
+  footer .leg { margin-top:8px; font-size:.82rem; opacity:.85; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="marca" href="#topo"><img src="img/logo.png" alt="Logo do Apresentador de PDF"> Apresentador de PDF</a>
+    <nav>
+      <a href="#recursos">Recursos</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#planos">Planos</a>
+      <a href="#faq">Dúvidas</a>
+      <a class="cta-topo" href="https://apps.microsoft.com/detail/9P0W9S0SNNXN?mode=direct">Baixar</a>
+    </nav>
+  </div>
+</header>
+
+<main id="topo">
+
+  <!-- Herói -->
+  <section class="hero" style="padding-bottom:36px">
+    <div class="wrap">
+      <span class="etiqueta">Para Windows 10 e 11 · grátis na Microsoft Store</span>
+      <h1>Seu PDF vira apresentação.<br><em>Com modo apresentador.</em></h1>
+      <p class="lead">Conecte o projetor, abra o PDF e pronto: o público vê o slide em tela cheia, e você controla tudo pela sua tela, com próximo slide, cronômetro e laser.</p>
+      <div class="botoes">
+        <!-- Selo oficial da Microsoft (imagem servida por get.microsoft.com; escuro no tema claro e vice-versa). -->
+        <a class="selo" href="https://apps.microsoft.com/detail/9P0W9S0SNNXN?mode=direct" aria-label="Baixar na Microsoft Store">
+          <img class="selo-escuro" src="https://get.microsoft.com/images/pt-br%20dark.svg" alt="Baixar na Microsoft Store" height="52">
+          <img class="selo-claro" src="https://get.microsoft.com/images/pt-br%20light.svg" alt="" height="52">
+        </a>
+        <a class="btn sec" href="#como-funciona">Ver como funciona</a>
+      </div>
+      <ul class="fatos">
+        <li>Funciona sem internet</li>
+        <li>Sem conta nem cadastro</li>
+        <li>Seus PDFs não saem do computador</li>
+        <li>Em português, inglês e francês</li>
+      </ul>
+      <div class="shot">
+        <div class="barra"><i></i><i></i><i></i></div>
+        <img src="img/1_modo_apresentador.png" alt="Janela do operador: slide atual, próximo slide, cronômetro regressivo e relógio, com o laser ligado" width="1920" height="1080">
+      </div>
+    </div>
+  </section>
+
+  <!-- Para quem -->
+  <section style="padding:36px 0 8px">
+    <div class="wrap">
+      <div class="quem">
+        <span>Palestras</span><span>Eventos</span><span>Aulas</span><span>Reuniões</span><span>Defesas e bancas</span><span>Cultos e treinamentos</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recursos -->
+  <section id="recursos">
+    <div class="wrap">
+      <h2>Tudo o que você precisa no palco</h2>
+      <p class="sub">Sem converter nada, sem configurar nada. Cada página do PDF vira um slide.</p>
+      <div class="grade">
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <h3>Modo apresentador</h3><p>Slide atual grande, próximo slide ao lado, "Slide 5 de 24 — faltam 19" e barra de progresso.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div>
+          <h3>Cronômetro e relógio</h3><p>Conte o tempo gasto ou o que falta. No regressivo, a cor avisa quando o tempo está acabando.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></div>
+          <h3>Laser no telão</h3><p>Ligue com a tecla L e aponte com o mouse: o ponto vermelho aparece na tela do público.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <h3>Visão geral</h3><p>Veja todos os slides de uma vez e pule direto para qualquer um com um clique.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="3"/><path d="M12 6v3M10 14h4"/></svg></div>
+          <h3>Passador de slides</h3><p>Funciona com os passadores comuns: Page Up/Down, F5, Esc, B ou ponto. Sem configurar.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="12" height="9" rx="1.5"/><rect x="10" y="10" width="12" height="9" rx="1.5"/></svg></div>
+          <h3>Uma tela ou duas</h3><p>Com um monitor só, o slide ocupa a tela inteira e o Esc traz o painel de volta. Com dois, o telão vai para o projetor.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></div>
+          <h3>Troca instantânea</h3><p>Os slides vizinhos ficam prontos em segundo plano, mesmo em PDFs grandes.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>
+          <h3>Tela preta</h3><p>Aperte B ou ponto e o telão fica preto, para chamar a atenção da plateia. Qualquer navegação volta ao slide, como no PowerPoint.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></div>
+          <h3>Pule para qualquer slide</h3><p>Digite o número e aperte Enter. Ou use a visão geral e clique no slide que quiser.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/></svg></div>
+          <h3>Abra do seu jeito</h3><p>Pelo botão "Abrir PDF" ou arrastando o arquivo para a janela do app.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3>Privado por padrão</h3><p>Seus PDFs nunca saem do computador. Sem conta, sem anúncios, sem coleta de dados.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div>
+          <h3>Português, inglês e francês</h3><p>O app abre no idioma do seu Windows. Se o seu não estiver na lista, usa o inglês.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section id="como-funciona" class="fundo">
+    <div class="wrap">
+      <h2>Como funciona</h2>
+      <p class="sub">Três passos. Você ensaia em casa e apresenta no evento do mesmo jeito.</p>
+      <div class="passos">
+        <div class="passo">
+          <img src="img/2_visao_geral.png" alt="Visão geral com todos os slides do PDF" width="1920" height="1080" loading="lazy">
+          <div class="txt"><h3><span class="n">1</span>Abra o PDF</h3>
+            <p>Pelo botão ou arrastando o arquivo. A visão geral mostra todos os slides.</p></div>
+        </div>
+        <div class="passo">
+          <div class="txt" style="padding-top:26px"><h3><span class="n">2</span>Escolha o telão</h3>
+            <p>Selecione o monitor do projetor ou da TV. O app lembra a escolha na próxima vez. Só tem uma tela? Use a mesma, ou a "janela de teste" para ensaiar.</p></div>
+        </div>
+        <div class="passo">
+          <img src="img/3_telao_com_laser.png" alt="Slide em tela cheia no telão com o laser" width="1920" height="1080" loading="lazy">
+          <div class="txt"><h3><span class="n">3</span>Inicie (F5)</h3>
+            <p>O público vê só o slide, em tela cheia e nítido. Use o laser quando precisar. Esc encerra.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teclas -->
+  <section id="teclas">
+    <div class="wrap">
+      <h2>Atalhos de teclado</h2>
+      <p class="sub">Tudo funciona também com o mouse, mas no palco as teclas (e o passador) são mais rápidas.</p>
+      <div class="teclas">
+        <div class="tecla"><span class="k"><kbd>←</kbd><kbd>→</kbd></span><span>Slide anterior / próximo</span></div>
+        <div class="tecla"><span class="k"><kbd>PgUp</kbd><kbd>PgDn</kbd></span><span>Anterior / próximo (passadores)</span></div>
+        <div class="tecla"><span class="k"><kbd>Espaço</kbd></span><span>Próximo slide</span></div>
+        <div class="tecla"><span class="k"><kbd>Home</kbd><kbd>End</kbd></span><span>Primeiro / último slide</span></div>
+        <div class="tecla"><span class="k"><kbd>nº</kbd><kbd>Enter</kbd></span><span>Pular para o slide</span></div>
+        <div class="tecla"><span class="k"><kbd>F5</kbd></span><span>Iniciar a apresentação</span></div>
+        <div class="tecla"><span class="k"><kbd>B</kbd> ou <kbd>.</kbd></span><span>Tela preta</span></div>
+        <div class="tecla"><span class="k"><kbd>L</kbd></span><span>Laser</span></div>
+        <div class="tecla"><span class="k"><kbd>G</kbd></span><span>Visão geral dos slides</span></div>
+        <div class="tecla"><span class="k"><kbd>Esc</kbd></span><span>Encerrar / sair</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Planos -->
+  <section id="planos" class="fundo">
+    <div class="wrap">
+      <h2>Grátis para começar</h2>
+      <p class="sub">O app é completo. A diferença está numa marca discreta no canto do telão.</p>
+      <div class="planos">
+        <div class="plano">
+          <h3>Gratuito</h3><div class="preco">R$ 0</div>
+          <ul><li>Todos os recursos</li><li>Sem limite de PDFs ou de uso</li><li>Marca "Feito com Apresentador de PDF" no canto do telão</li></ul>
+        </div>
+        <div class="plano dest">
+          <span class="fita">Remove a marca</span>
+          <h3>Sem marca d'água</h3><div class="preco">R$ 4,95<small>/mês</small></div>
+          <ul><li>Tudo do plano gratuito</li><li>Telão limpo, sem marca</li><li>Cancele quando quiser, pela Microsoft Store</li></ul>
+          <p class="obs">Assinatura mensal dentro do app. O preço pode variar em outros países.</p>
+        </div>
+      </div>
+      <p class="rodape-planos">A compra e o cancelamento são feitos pela sua conta Microsoft. O app continua funcionando se você cancelar, apenas com a marca no telão.</p>
+    </div>
+  </section>
+
+  <!-- Privacidade e idiomas -->
+  <section>
+    <div class="wrap">
+      <h2>Feito para ser simples e privado</h2>
+      <p class="sub">Sem cadastro, sem anúncios e sem enviar nada para a internet.</p>
+      <div class="duas-col">
+        <div class="card"><h3>Privacidade</h3>
+          <p>Os arquivos são lidos e exibidos só no seu computador. O app não coleta dados pessoais nem usa analytics. Veja a <a href="https://rafonsky.github.io/apresentador-do-pdf-site/">política de privacidade</a>.</p></div>
+        <div class="card"><h3>Idiomas</h3>
+          <p>A interface segue o idioma do Windows.</p>
+          <div class="langs"><b>Português</b><b>English</b><b>Français</b></div></div>
+        <div class="card"><h3>Requisitos</h3>
+          <p>Windows 10 ou 11. Instalação e atualizações pela Microsoft Store, sem instalador separado.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="fundo">
+    <div class="wrap" style="max-width:780px">
+      <h2>Perguntas frequentes</h2>
+      <p class="sub">Não achou o que procurava? Escreva para <a href="mailto:rafonsky@gmail.com">rafonsky@gmail.com</a>.</p>
+      <details><summary>Preciso de internet?</summary><p>Não. O app funciona offline. A internet só é usada pela Microsoft Store para confirmar a assinatura, quando há uma.</p></details>
+      <details><summary>Meus PDFs ficam seguros?</summary><p>Os arquivos são lidos e exibidos só no seu computador. O app não envia nada para servidores. Veja a <a href="https://rafonsky.github.io/apresentador-do-pdf-site/">política de privacidade</a>.</p></details>
+      <details><summary>Funciona com passador de slides?</summary><p>Sim, com os que enviam Page Up/Page Down, F5, Esc, B ou ponto, que são a maioria.</p></details>
+      <details><summary>Só tenho um monitor. Funciona?</summary><p>Funciona. Ao iniciar, o slide ocupa a tela inteira, e o Esc traz o painel de volta. Também há uma "janela de teste" para ensaiar sem ocupar a tela.</p></details>
+      <details><summary>O que a marca d'água faz exatamente?</summary><p>Na versão gratuita, aparece o texto "Feito com Apresentador de PDF" no canto do slide, só no telão. A janela do operador não muda, e todos os recursos continuam disponíveis.</p></details>
+      <details><summary>Como removo a marca d'água?</summary><p>Com a assinatura mensal de R$ 4,95. No app, clique em "Remover marca d'água" (a faixa no topo da janela), conclua a compra na Microsoft Store e volte ao app.</p></details>
+      <details><summary>Como cancelo a assinatura?</summary><p>Pela sua conta Microsoft, em "Serviços e assinaturas". O app continua funcionando, apenas com a marca no telão.</p></details>
+      <details><summary>Funciona com PDFs grandes ou protegidos por senha?</summary><p>Os slides vizinhos são preparados em segundo plano para a troca ser rápida. PDFs protegidos por senha ainda não são abertos: o app avisa que o arquivo é protegido.</p></details>
+      <details><summary>Funciona no Mac ou no celular?</summary><p>Hoje a versão publicada é só para Windows 10 e 11.</p></details>
+    </div>
+  </section>
+
+  <!-- Chamada final -->
+  <section class="final">
+    <div class="wrap">
+      <h2>Pronto para apresentar?</h2>
+      <p>Baixe grátis na Microsoft Store e abra o seu primeiro PDF em menos de um minuto.</p>
+      <a class="selo" href="https://apps.microsoft.com/detail/9P0W9S0SNNXN?mode=direct" aria-label="Baixar na Microsoft Store">
+        <img class="selo-escuro" src="https://get.microsoft.com/images/pt-br%20dark.svg" alt="Baixar na Microsoft Store" height="52">
+        <img class="selo-claro" src="https://get.microsoft.com/images/pt-br%20light.svg" alt="" height="52">
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 Rafonsky · <a href="https://rafonsky.github.io/apresentador-do-pdf-site/">Política de privacidade</a> ·
+       <a href="mailto:rafonsky@gmail.com">Contato</a></p>
+    <p class="leg">Microsoft e Microsoft Store são marcas do grupo de empresas Microsoft. Este site não é afiliado à Microsoft.</p>
+  </div>
+</footer>
+
+</body>
+</html>
